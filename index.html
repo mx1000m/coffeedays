@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Mapbox Example - Coffee Shops with Popups</title>
+  <link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/v3.6.0/mapbox-gl.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&italic&display=swap">
+
+  <style>
+    @font-face {
+      font-family: 'britney';
+      src: url('https://raw.githubusercontent.com/mx1000m/basedin/5214bd402a4e4e4a4eb49b0e21eb7c9f6c232c83/britney.ttf') format("truetype");
+      font-weight: normal;
+      font-style: normal;
+    }
+
+    body, html {
+      margin: 0;
+      padding: 0;
+      background-color: #0052FF;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    #map {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 100%;
+      height: 100%;
+      background-color: #0052FF;
+    }
+
+    .mapboxgl-popup {
+      z-index: 3000 !important; /* Ensure the popup container is above all elements */
+      position: relative; /* Respect the stacking context */
+    }
+
+    .mapboxgl-popup-content {
+      border-radius: 10px;
+      background-color: #0052FF;
+      color: white;
+      font-family: Arial, sans-serif;
+      padding: 15px;
+      width: 220px;
+  outline-style: solid;
+  outline-color: #ffffff;
+outline-width: 3px;
+  box-shadow: 0 0px 8px 0 rgba(0, 0, 0, 0.3), 0 0px 20px 0 rgba(0, 0, 0, 0.3);
+    }
+
+    .popup-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .popup-header img {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background-color: red;
+      margin-right: 10px;
+    }
+
+    .popup-header h3 {
+      font-size: 18px;
+      margin: 0;
+      flex-grow: 1;
+    }
+
+    .popup-content p {
+      font-size: 14px;
+      margin: 5px 0;
+    }
+
+    .popup-content a {
+      color: white;
+      text-decoration: none;
+    }
+
+    .popup-content a:hover {
+      text-decoration: underline;
+    }
+
+    .popup-close-button {
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      width: 20px;
+      height: 20px;
+      background-color: white;
+      color: #0052FF;
+      border-radius: 50%;
+      text-align: center;
+      line-height: 20px;
+      cursor: pointer;
+      font-weight: bold;
+ box-shadow: 0 0px 5px 0 rgba(0, 0, 0, 0.3), 0 0px 5px 0 rgba(0, 0, 0, 0.3);
+    }
+
+    .popup-close-button:hover {
+      background-color: #6b9bff;
+      color: white;
+    }
+
+    .ribbon-box {
+      position: absolute;
+      top: -5px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: #0052FF;
+      padding: 20px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      z-index: 2000;
+      text-align: center;
+      display: inline-block;
+      font-family: 'britney', sans-serif;
+      border-radius: 0 0 15px 15px;
+
+    }
+
+    .ribbon-box .line1,
+    .ribbon-box .line2,
+    .ribbon-box .line3,
+    .ribbon-box .line4 {
+      color: #ffffff;
+    }
+
+    .ribbon-box .line1 {
+      font-size: 11px;
+margin-top: 0px;
+margin-bottom: 5px;
+    }
+
+    .ribbon-box .line2 {
+      font-size: 24px;
+      letter-spacing: 1px;
+margin-bottom: 3px;
+    }
+
+    .ribbon-box .line3 {
+      font-size: 11px;
+    }
+    .ribbon-box .line4 {
+      font-size: 11px;
+font-family: 'Roboto', sans-serif; /* Apply Roboto font */
+font-style: italic; /* Apply italic style */
+    }
+
+    .button-pill {
+      position: fixed;
+      bottom: 25px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: #0052FF;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 20px;
+      text-align: center;
+      font-family: Britney, sans-serif;
+      font-size: 12px;
+      text-decoration: none;
+      display: inline-block;
+      border: 2px solid #0052FF;
+      letter-spacing: 1px;
+ 
+    }
+
+    .button-pill:hover {
+      background-color: #d2e0ff;
+      color: #0052FF;
+    }
+
+    #shop-list-container {
+      position: absolute;
+      top: 50%;
+      left: 10px;
+      transform: translateY(-50%);
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .shop-container {
+      background-color: rgba(255, 255, 255, 0.8);
+      border-radius: 8px;
+      padding: 10px;
+      max-width: 250px;
+      margin-bottom: 10px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
+
+    .shop-title {
+      font-family: 'britney', sans-serif;
+      font-size: 14px;
+      color: #0052FF;
+      margin-bottom: 5px;
+      text-align: center;
+    }
+
+    .shop-list button {
+      display: block;
+      width: 100%;
+      background: #0052FF;
+      color: white;
+      border: none;
+      padding: 10px;
+      margin: 5px 0;
+      border-radius: 5px;
+      text-align: center;
+      cursor: pointer;
+      font-family: 'britney', sans-serif;
+      font-size: 10px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      text-transform: uppercase;
+    }
+
+    .shop-list button:hover {
+      background-color: #0046d3;
+    }
+
+
+
+
+
+.zoom-slider {
+  position: fixed;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: #0052FF;
+  border-radius: 5px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+}
+
+.zoom-button {
+  background-color: #ffffff;
+  border: none;
+  color: #0052FF;
+  font-size: 24px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin: 5px 0;
+  text-align: center;
+  line-height: 40px;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  font-family: 'britney', sans-serif;
+}
+
+.zoom-button:hover {
+  background-color: #e0e0e0;
+}
+
+
+
+.under-ribbon-text {
+  position: absolute;
+  top: calc(10% + 35px); /* Adjust this value based on the height of your ribbon box and desired position */
+  left: 50%;
+  transform: translateX(-50%);
+  color: white;
+  font-family: 'Roboto', sans-serif; /* Use Roboto font */
+  font-size: 10px; /* Adjust font size as needed */
+  text-align: center;
+  z-index: 2000; /* Ensure it appears above other elements */
+letter-spacing: 0px;
+
+}
+
+
+
+.footer-text {
+  position: absolute;
+  bottom: 8px; /* Adjust as needed */
+  left: 50%;
+  transform: translateX(-50%);
+  color: white;
+  font-family: 'Roboto', sans-serif; /* Use Roboto font */
+  font-size: 10px; /* Adjust font size as needed */
+  text-align: center;
+  z-index: 2000; /* Ensure it appears above other elements */
+letter-spacing: 1px;
+
+}
+
+
+
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+
+  <div class="ribbon-box">
+    <div class="line1">ONCHAIN SUMMER</div>
+    <div class="line2">CoFfEE DaYS</div>
+    <div class="line3">COFFEE SHOP LOCATOR</div>
+  </div>
+
+
+<!-- New Text Element -->
+
+<a href="https://x.com/mx1000m" target="_blank" class="under-ribbon-text">built by mx1000</a>
+
+
+<div class="footer-text">BASE IS 4 EVERYONE.</div>
+
+
+  <a href="https://wallet.coinbase.com/ocs/coffeedays" class="button-pill" target="_blank">MINT CoFfEE DaYS</a>
+
+
+
+
+  <div id="shop-list-container">
+    <div class="shop-container">
+      <div class="shop-title">EUROPE</div>
+      <div id="europe-shop-list" class="shop-list"></div>
+    </div>
+
+    <div class="shop-container">
+      <div class="shop-title">NORTH AMERICA</div>
+      <div id="america-shop-list" class="shop-list"></div>
+    </div>
+  </div>
+
+
+
+
+  <!-- Vertical Zoom Slider -->
+  <div class="zoom-slider">
+    <button class="zoom-button zoom-in">+</button>
+    <button class="zoom-button zoom-out">-</button>
+  </div>
+
+
+
+
+  <script src="https://api.mapbox.com/mapbox-gl-js/v3.6.0/mapbox-gl.js"></script>
+  <script>
+    mapboxgl.accessToken = 'pk.eyJ1IjoidHlsYW5nYSIsImEiOiJjbHp5ZzJqY2MxMXZ4MmtxNGkyNWtkd2ZlIn0.Nb8B1O3wPBePLj8TrY854A';
+    const map = new mapboxgl.Map({
+      container: 'map',
+      style: 'mapbox://styles/mapbox/outdoors-v11',
+      center: [-96, 37.8],
+    });
+
+    map.on('style.load', function() {
+      map.flyTo({
+        zoom: 2.5,
+        essential: true,
+        speed: 1,
+        curve: 1,
+        center: [-96, 37.8]
+      });
+
+      map.setPaintProperty('background', 'background-color', '#0052FF');
+      map.setPaintProperty('land', 'background-color', '#b6ccfa');
+      map.setPaintProperty('landcover', 'fill-color', '#b6ccfa');
+      map.setPaintProperty('water', 'fill-color', '#4780f9');
+      map.setPaintProperty('admin-0-boundary', 'line-color', '#053ebf');
+      map.setPaintProperty('admin-1-boundary', 'line-color', '#053ebf');
+      map.setPaintProperty('country-label', 'text-color', '#053ebf');
+      map.setPaintProperty('state-label', 'text-color', '#053ebf');
+      map.setPaintProperty('settlement-label', 'text-color', '#053ebf');
+      map.setPaintProperty('settlement-major-label', 'text-color', '#053ebf');
+      map.setPaintProperty('settlement-minor-label', 'text-color', '#053ebf');
+      map.setPaintProperty('settlement-subdivision-label', 'text-color', '#053ebf');
+      map.setPaintProperty('waterway-label', 'text-color', '#053ebf');
+      map.setPaintProperty('road-label', 'text-color', '#053ebf');
+    });
+
+    const locations = [
+      {
+        coordinates: [13.4224, 52.5336],
+        name: 'TOWN MOUSE COFFEE',
+        address: 'Marienburger Str. 5, 10405 Berlin, Germany',
+        hours: 'Mon-Fri: 08-18<br>Sat-Sun: 09-18',
+        web: 'https://townmouse.de',
+        webName: 'townmouse.de',
+        x: 'https://x.com/townmousecoffee',
+        xHandle: '@townmousecoffee',
+        image: 'https://github.com/mx1000m/coffeedays/raw/07c802ae85f4a6a898813ff641747110203486a0/townmouse.png'
+      },
+        {
+            coordinates: [-122.2730, 37.7950],
+            name: 'BICYCLE COFFEE CO.',
+            address: '377 2nd St #110, Oakland, CA 94607, USA',
+            hours: 'Mon-Sun: 7:30am - 3:00pm',
+            web: 'https://www.bicyclecoffeeco.com/',
+            webName: 'bicyclecoffeeco.com',
+            x: 'https://x.com/bicyclecoffeeco',
+            xHandle: '@bicyclecoffeeco',
+            image: 'https://github.com/mx1000m/coffeedays/raw/07c802ae85f4a6a898813ff641747110203486a0/bicycle.png'
+        },
+        {
+            coordinates: [-77.0085, 38.8776],
+            name: 'COMPASS COFFEE',
+            address: '1201 Half Street, Washington, District of Columbia 20003, USA',
+            hours: 'Mon-Sun: 6:30am - 5:00pm',
+            web: 'https://www.compasscoffee.com/',
+            webName: 'compasscoffee.com',
+            x: 'https://x.com/CompassCoffeeDC',
+            xHandle: '@CompassCoffeeDC',
+            image: 'https://github.com/mx1000m/coffeedays/raw/07c802ae85f4a6a898813ff641747110203486a0/compass.png'
+        },
+        {
+            coordinates: [-73.9570, 40.7156],
+            name: 'LION’S MILK',
+            address: '104 Roebling Street, Brooklyn, New York, 11211, USA',
+            hours: 'Open until 3 pm everyday',
+            web: 'https://www.lionsmilkbk.com/',
+            webName: 'lionsmilkbk.com',
+            x: 'https://x.com/lionsmilk_eth',
+            xHandle: '@lionsmilk_eth',
+            image: 'https://github.com/mx1000m/coffeedays/raw/07c802ae85f4a6a898813ff641747110203486a0/lionsmilk.png'
+        },
+        {
+            coordinates: [-118.4395, 34.0045],
+            name: 'MENOTTI’S',
+            address: '12430 Washington Blvd, Los Angeles, CA 90066, USA',
+            hours: 'Mon-Sun: 7:00am - 5:00pm',
+            web: 'https://menottis.com/',
+            webName: 'menottis.com',
+            x: 'https://x.com/Menottis',
+            xHandle: '@Menottis',
+            image: 'https://github.com/mx1000m/coffeedays/raw/07c802ae85f4a6a898813ff641747110203486a0/menotti.png'
+        },
+        {
+            coordinates: [-118.3537, 34.0903],
+            name: 'NOUN COFFEE',
+            address: '7702 Santa Monica Blvd, West Hollywood, CA 90046, USA',
+            hours: 'Mon-Sun: 8:00am - 2:00pm',
+            web: 'https://noun.coffee/',
+            webName: 'noun.coffee',
+            x: 'https://x.com/NounCoffee',
+            xHandle: '@NounCoffee',
+            image: 'https://github.com/mx1000m/coffeedays/raw/07c802ae85f4a6a898813ff641747110203486a0/noun.png'
+        },
+        {
+            coordinates: [-86.3077, 32.3792],
+            name: 'PREVAIL COFFEE',
+            address: '39 Dexter Ave, Suite 102, Montgomery AL, 36104, USA',
+            hours: 'Mon-Thu: 7.00am - 6.00pm<br>Fri-Sat: 7.00am - 8.00pm<br>Sun: 8.00am - 3.00pm',
+            web: 'https://prevailcoffee.com/',
+            webName: 'prevailcoffee.com',
+            x: 'https://x.com/prevailcoffee',
+            xHandle: '@prevailcoffee',
+            image: 'https://github.com/mx1000m/coffeedays/raw/07c802ae85f4a6a898813ff641747110203486a0/prevail.png'
+        },
+        {
+            coordinates: [-123.1119, 49.2827],
+            name: 'REVOLVER COFFEE',
+            address: '325 Cambie St in Gastown, Vancouver, Canada',
+            hours: 'Mon-Sat: 7.30am - 5.00pm<br>Sun: Closed',
+            web: 'https://revolvercoffee.ca/',
+            webName: 'revolvercoffee.ca',
+            x: 'https://x.com/revolvercoffee',
+            xHandle: '@revolvercoffee',
+            image: 'https://github.com/mx1000m/coffeedays/raw/07c802ae85f4a6a898813ff641747110203486a0/revolver.png'
+        },
+        {
+            coordinates: [-79.3854, 43.6441],
+            name: 'PICCOLO CAFE',
+            address: '111 John St, Toronto, ON M5V 2E2, Canada',
+            hours: 'Mon-Sat: 8:00am - 2:00am',
+            web: '',
+            webName: '',
+            x: '',
+            xHandle: '',
+            image: 'https://github.com/mx1000m/coffeedays/raw/07c802ae85f4a6a898813ff641747110203486a0/piccolo.png'
+        },
+        {
+            coordinates: [-122.4662, 37.7648],
+            name: 'POORBOY COFFEE',
+            address: '1235 9th Ave, San Francisco, CA 94122, USA',
+            hours: 'Mon-Tu: Closed<br>Wed-Sun: 8.00am - 3.00pm',
+            web: '',
+            webName: '',
+            x: '',
+            xHandle: '',
+            image: 'https://github.com/mx1000m/coffeedays/raw/07c802ae85f4a6a898813ff641747110203486a0/poorboy.png'
+        },
+    ];
+
+    const europeShopList = document.getElementById('europe-shop-list');
+    const americaShopList = document.getElementById('america-shop-list');
+
+    let currentPopup = null;
+
+    const markers = locations.map(location => {
+      const popupContent = `
+        <div class="popup-header">
+          <img src="${location.image || ''}" alt="Profile Picture">
+          <h3>${location.name}</h3>
+          <div class="popup-close-button">&times;</div>
+        </div>
+        <div class="popup-content">
+          <p>${location.address}</p>
+          <hr>
+          <p>${location.hours}</p>
+          <hr>
+          ${location.web ? `<p><i class="fas fa-globe icon"></i> <a href="${location.web}" target="_blank">${location.webName}</a></p>` : ''}
+          ${location.x ? `<p><i class="fab fa-x-twitter icon"></i> <a href="${location.x}" target="_blank">${location.xHandle}</a></p>` : ''}
+        </div>`;
+
+      const popup = new mapboxgl.Popup({ offset: 25, closeButton: false }).setHTML(popupContent);
+      const marker = new mapboxgl.Marker({ color: '#0052FF' })
+        .setLngLat(location.coordinates)
+        .setPopup(popup)
+        .addTo(map);
+
+
+
+const offset = -5; // Latitude adjustment for pin offset
+
+
+      marker.getElement().addEventListener('click', function() {
+        map.flyTo({
+          center: [
+            location.coordinates[0],
+            location.coordinates[1] - offset
+          ],
+          zoom: 2.5,
+          essential: true,
+          speed: 1,
+          curve: 1
+        });
+      });
+
+
+
+
+
+
+      document.body.addEventListener('click', function(event) {
+        if (event.target.classList.contains('popup-close-button')) {
+          popup.remove();
+          currentPopup = null;
+        }
+      });
+
+      return { marker, popup, location };
+    });
+
+    locations.forEach((location, index) => {
+      const button = document.createElement('button');
+      button.textContent = location.name;
+
+
+
+
+      button.addEventListener('click', () => {
+        const { marker, popup } = markers[index];
+
+
+        if (currentPopup) {
+          currentPopup.remove();
+        }
+
+    map.flyTo({
+      center: [
+        location.coordinates[0],
+        location.coordinates[1] - -5 // This value represents the offset; adjust as needed
+      ],
+      zoom: 2.5,
+      essential: true,
+      speed: 1,
+      curve: 1
+    });
+    popup.addTo(map);
+    currentPopup = popup;
+  });
+
+  if (location.coordinates[0] > -30 && location.coordinates[0] < 60) {
+    europeShopList.appendChild(button);
+  } else {
+    americaShopList.appendChild(button);
+  }
+});
+
+
+
+
+    // Zoom slider functionality
+    document.querySelector('.zoom-in').addEventListener('click', () => {
+      map.zoomIn();
+    });
+
+    document.querySelector('.zoom-out').addEventListener('click', () => {
+      map.zoomOut();
+    });
+
+
+
+
+
+  </script>
+</body>
+</html>
