@@ -36,8 +36,8 @@
     }
 
     .mapboxgl-popup {
-      z-index: 3000 !important; /* Ensure the popup container is above all elements */
-      position: relative; /* Respect the stacking context */
+      z-index: 3000 !important; 
+      position: relative; 
     }
 
     .mapboxgl-popup-content {
@@ -148,8 +148,8 @@ margin-bottom: 3px;
     }
     .ribbon-box .line4 {
       font-size: 11px;
-font-family: 'Roboto', sans-serif; /* Apply Roboto font */
-font-style: italic; /* Apply italic style */
+font-family: 'Roboto', sans-serif; 
+font-style: italic; 
     }
 
     .button-pill {
@@ -268,14 +268,14 @@ font-style: italic; /* Apply italic style */
 
 .under-ribbon-text {
   position: absolute;
-  top: calc(10% + 35px); /* Adjust this value based on the height of your ribbon box and desired position */
+  top: calc(10% + 35px); 
   left: 50%;
   transform: translateX(-50%);
   color: white;
-  font-family: 'Roboto', sans-serif; /* Use Roboto font */
-  font-size: 10px; /* Adjust font size as needed */
+  font-family: 'Roboto', sans-serif; 
+  font-size: 10px; 
   text-align: center;
-  z-index: 2000; /* Ensure it appears above other elements */
+  z-index: 2000; 
 letter-spacing: 0px;
 
 }
@@ -284,14 +284,14 @@ letter-spacing: 0px;
 
 .footer-text {
   position: absolute;
-  bottom: 8px; /* Adjust as needed */
+  bottom: 8px; 
   left: 50%;
   transform: translateX(-50%);
   color: white;
-  font-family: 'Roboto', sans-serif; /* Use Roboto font */
-  font-size: 10px; /* Adjust font size as needed */
+  font-family: 'Roboto', sans-serif; 
+  font-size: 10px; 
   text-align: center;
-  z-index: 2000; /* Ensure it appears above other elements */
+  z-index: 2000; 
 letter-spacing: 1px;
 
 }
@@ -338,7 +338,7 @@ letter-spacing: 1px;
 
 
 
-  <!-- Vertical Zoom Slider -->
+  
   <div class="zoom-slider">
     <button class="zoom-button zoom-in">+</button>
     <button class="zoom-button zoom-out">-</button>
@@ -572,7 +572,7 @@ const offset = -5; // Latitude adjustment for pin offset
     map.flyTo({
       center: [
         location.coordinates[0],
-        location.coordinates[1] - -5 // This value represents the offset; adjust as needed
+        location.coordinates[1] - -5 
       ],
       zoom: 2.5,
       essential: true,
@@ -593,7 +593,7 @@ const offset = -5; // Latitude adjustment for pin offset
 
 
 
-    // Zoom slider functionality
+    // Zoom functionality
     document.querySelector('.zoom-in').addEventListener('click', () => {
       map.zoomIn();
     });
